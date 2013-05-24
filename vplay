@@ -1,0 +1,95 @@
+#!/bin/bash
+
+VPLAY_NAME=vplay
+VPLAY_VER=0.0.1
+
+MUSIC_PATH=/home/pi/music/
+DI_URL=http://listen.di.fm/public3/
+LUB_URL=http://rzg.pl/player/
+
+nofit_cnt=0
+
+function vplay_usage {
+    echo Usage:$VPLAY_NAME '<music type>'
+    if [ -n "$1" ]; then
+	exit "$1"
+    fi
+}
+
+function vplay_play_music {
+
+    case $1 in
+	di)
+	    mplayer -playlist $DI_URL$2.pls > /dev/null 2>&1 &
+	    ;;
+
+	lub)
+	    mplayer -playlist $LUB_URL$2.m3u > /dev/null 2>&1 &
+	    ;;
+
+	mp3)
+	    mplayer $MUSIC_PATH*$2* > /dev/null 2>&1 &
+            ;;
+
+	*)
+	    vplay_usage -3
+	    ;;
+    esac
+	
+}
+
+if [ -z "$1" ];
+then
+    vplay_usage -1
+fi
+
+for i in $@; do
+    case $i in
+	--version)
+	    echo $VPLAY_NAME $VPLAY_VER
+	    echo Copyright '(C)' 2013 SEITAZ
+	    echo License GPLv3+: GNU GPL version 3 or later '<http://gnu.org/licenses/gpl.html>'
+	    echo This is free software: you are free to change and redistribute it.
+	    echo There is NO WARRANTY, to the extent permitted by law.
+	    exit 0
+	    ;;
+	--help)
+	    vplay_usage
+	    echo Report bugs to: '<http://github.com/voslak/vplay/issues>'
+	    echo $VPLAY_NAME home page: '<http://github.com/voslak/vplay>'
+	    echo General help using GNU software: '<http://www.gnu.org/gethelp/>'
+	    exit 0
+	    ;;
+	*)
+	    let nofit_cnt++
+    	    ;;
+    esac
+done
+ 
+# Check selected music type/source
+case $1 in
+    trance)      ;&
+    vocaltrance) ;&
+    chillout)    ;&
+    house)       ;&
+    electro)
+	vplay_play_music di $1
+	;;
+
+    rzg) ;&
+    rz)  ;&
+    rg)
+	vplay_play_music lub $1
+	;;
+
+    *)
+	vplay_play_music mp3 $1
+	;;
+esac
+
+echo ======================================================
+echo $VPLAY_NAME: Playing $1, enjoy!
+echo ======================================================
+
+exit 0
+
