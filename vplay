@@ -68,6 +68,9 @@ done
  
 # Check selected music type/source
 case $1 in
+    stop)
+	pkill mplayer
+	;;
     trance)      ;&
     vocaltrance) ;&
     chillout)    ;&
