@@ -1,21 +1,49 @@
 #!/bin/bash
 
 VPLAY_NAME=vplay
-VPLAY_VER=0.0.1
+VPLAY_VER=0.0.2
 
 MUSIC_PATH=/home/pi/music/
 DI_URL=http://listen.di.fm/public3/
 LUB_URL=http://rzg.pl/player/
 
+CMD_PLAY_TRANCE=trance
+CMD_PLAY_VOCALTRANCE=vocaltrance
+CMD_PLAY_CHILLOUT=chillout
+CMD_PLAY_HOUSE=house
+CMD_PLAY_ELECTRO=electro
+CMD_PLAY_RZG=rzg
+CMD_PLAY_RZ=rz
+CMD_PLAY_ZG=rg
+CMD_STOP=stop
+
+music_type[0]=trance
+music_type[1]=vocaltrance
+music_type[2]=chillout
+music_type[3]=house
+music_type[4]=electro
+music_type[5]=rzg
+music_type[6]=rz
+music_type[7]=rg
+
 nofit_cnt=0
 
+# Kill mplayer as we use it for playing.
+function vplay_stop {
+    pkill mplayer
+    echo $VPLAY_NAME stopped
+    exit 0
+}
+
+# Tell how to use the program.
 function vplay_usage {
-    echo Usage:$VPLAY_NAME '<music type>'
+    echo Usage: $VPLAY_NAME '[options]'
     if [ -n "$1" ]; then
 	exit "$1"
     fi
 }
 
+# Play music type given.
 function vplay_play_music {
 
     case $1 in
@@ -38,6 +66,34 @@ function vplay_play_music {
 	
 }
 
+# Display all supported music types.
+function vplay_music_types {
+    echo $PLAY_NAME: follwing music types are supported:
+    for i in "${music_type[@]}"
+    do
+	echo " -$i"
+    done
+    exit 0
+}
+
+# Help general header.
+function vplay_help_footer {
+    echo Report bugs to: '<http://github.com/voslak/vplay/issues>'
+    echo $VPLAY_NAME home page: '<http://github.com/voslak/vplay>'
+    echo General help using GNU software: '<http://www.gnu.org/gethelp/>'
+}
+
+# Opions supported.
+function vplay_options {
+    echo "Options:"
+    echo "  --help	        Display this information"
+    echo "  --version		Display $VPLAY_NAME version information"
+    echo "  --musictypes		Display supported music types"
+    echo "  --commands		Display commands supported TBD"
+    echo ""
+}
+
+
 if [ -z "$1" ];
 then
     vplay_usage -1
@@ -53,13 +109,18 @@ for i in $@; do
 	    echo There is NO WARRANTY, to the extent permitted by law.
 	    exit 0
 	    ;;
+
 	--help)
 	    vplay_usage
-	    echo Report bugs to: '<http://github.com/voslak/vplay/issues>'
-	    echo $VPLAY_NAME home page: '<http://github.com/voslak/vplay>'
-	    echo General help using GNU software: '<http://www.gnu.org/gethelp/>'
+	    vplay_options
+	    vplay_help_footer
 	    exit 0
 	    ;;
+
+	--musictypes)
+	    vplay_music_types
+	    ;;
+
 	*)
 	    let nofit_cnt++
     	    ;;
@@ -68,20 +129,20 @@ done
  
 # Check selected music type/source
 case $1 in
-    stop)
-	pkill mplayer
+    $CMD_STOP)
+	vplay_stop
 	;;
-    trance)      ;&
-    vocaltrance) ;&
-    chillout)    ;&
-    house)       ;&
-    electro)
+    $CMD_PLAY_TRANCE)      ;&
+    $CMD_PLAY_VOCALTRANCE) ;&
+    $CMD_PLAY_CHILLOUT)    ;&
+    $CMD_PLAY_HOUSE)       ;&
+    $CMD_PLAY_ELECTRO)
 	vplay_play_music di $1
 	;;
 
-    rzg) ;&
-    rz)  ;&
-    rg)
+    $CMD_PLAY_RZG) ;&
+    $CMD_PLAY_RZ)  ;&
+    $CMD_PLAY_RG)
 	vplay_play_music lub $1
 	;;
 
